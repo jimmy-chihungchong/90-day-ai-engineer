@@ -34,8 +34,8 @@ def get_backend(name=None):
             "nim",
             _env("NIM_BASE_URL", "https://integrate.api.nvidia.com/v1"),
             _env("NIM_API_KEY"),
-            (_env("NIM_MODEL_A", "microsoft/phi-4-mini-reasoning"),
-             _env("NIM_MODEL_B", "meta/llama-3.2-3b-instruct")),
+            (_env("NIM_MODEL_A", "openai/gpt-oss-20b"),
+             _env("NIM_MODEL_B", "meta/muse-glimmer-30b")),
         )
     return Backend(
         "local",

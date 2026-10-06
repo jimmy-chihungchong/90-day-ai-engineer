@@ -36,5 +36,5 @@ in the app's Secrets. LM Studio is not reachable from the cloud, so use NIM ther
 ## Notes
 - Each model keeps its own history, so compare stays fair.
 - If no token arrives within `LLM_TIMEOUT_SECONDS` (default 45), the UI warns and offers a one-click switch to the other model.
-- NIM model IDs are best guesses; confirm them in the NIM catalog.
+- NIM does not host phi-4-mini-reasoning or llama-3.2-3b-instruct, so NIM uses `openai/gpt-oss-20b` and `meta/muse-glimmer-30b`. Local and online model pairs therefore differ.
 - Memory JSON contains message text, timestamps and latency. Treat it as private.
