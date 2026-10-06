@@ -17,7 +17,8 @@ st.markdown("""<style>
 
 ss = st.session_state
 ss.setdefault("conv", Conversation())
-ss.setdefault("backend_name", "local")
+DEPLOYED_NIM = get_backend().name == "nim"  # BACKEND=nim -> hide the LM Studio option
+ss.setdefault("backend_name", get_backend().name)
 ss.setdefault("model_idx", 1)  # llama by default (faster)
 ss.setdefault("compare", False)
 ss.setdefault("notice", None)
@@ -50,9 +51,13 @@ with st.sidebar:
         ss.notice = None
         st.rerun()
 
-    ss.backend_name = st.radio("Backend", ["local", "nim"], horizontal=True,
-                               index=["local", "nim"].index(ss.backend_name),
-                               format_func=lambda x: "LM Studio" if x == "local" else "NVIDIA NIM")
+    if DEPLOYED_NIM:
+        ss.backend_name = "nim"
+        st.caption("Backend: NVIDIA NIM")
+    else:
+        ss.backend_name = st.radio("Backend", ["local", "nim"], horizontal=True,
+                                   index=["local", "nim"].index(ss.backend_name),
+                                   format_func=lambda x: "LM Studio" if x == "local" else "NVIDIA NIM")
     backend = get_backend(ss.backend_name)
     if backend.name == "nim" and not backend.api_key:
         st.error("NIM_API_KEY is not set.")
