@@ -69,6 +69,11 @@ def render():
         st.info("Press Ask to see the answer with confidence shading.")
         return
     r = res["r"]
+    if not r.text.strip():
+        st.warning("The model used its whole token budget on hidden reasoning and gave no answer, so there is "
+                   "nothing to shade. Pick a non-reasoning model (for NIM: the first in the list).",
+                   icon=":material/psychology:")
+        return
     s = summarize(r.tokens)
     if not s:
         st.info("This model didn't return token probabilities (or answered with nothing).")

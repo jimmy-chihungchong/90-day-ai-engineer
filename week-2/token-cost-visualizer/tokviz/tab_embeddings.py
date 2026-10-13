@@ -5,6 +5,7 @@ import pandas as pd
 import streamlit as st
 
 from .config import get_backend, timeout_seconds
+from .ui_common import current_backend
 from .embeddings import embed, project_2d, rank_by_similarity
 from .llm import LLMError, LLMTimeout
 
@@ -43,8 +44,8 @@ def parse_lines(raw: str) -> list[tuple[str, str]]:
 
 
 @st.cache_data(ttl=600, show_spinner=False, max_entries=20)
-def _embed_cached(backend_name: str, texts: tuple[str, ...]) -> np.ndarray:
-    return embed(get_backend(backend_name), list(texts), timeout=timeout_seconds())
+def _embed_cached(backend_name: str, texts: tuple[str, ...], kind: str = "passage") -> np.ndarray:
+    return embed(get_backend(backend_name), list(texts), timeout=timeout_seconds(), kind=kind)
 
 
 def _short(s: str, n: int = 30) -> str:
@@ -52,7 +53,7 @@ def _short(s: str, n: int = 30) -> str:
 
 
 def render():
-    backend = get_backend()
+    backend = current_backend()
     st.markdown("An **embedding** turns a piece of text into a long list of numbers that captures its "
                 "*meaning*. Sentences about similar things get similar numbers, so they land close together. "
                 "That is how search by meaning works, and how an AI can find relevant text without "
@@ -114,7 +115,7 @@ def render():
     if found and query.strip():
         try:
             with st.spinner("Embedding your query…"):
-                q = _embed_cached(backend.name, (query.strip(),))[0]
+                q = _embed_cached(backend.name, (query.strip(),), "query")[0]
             st.session_state[SEARCH_KEY] = {"q": query.strip(), "ranked": rank_by_similarity(q, vecs)}
         except LLMTimeout as e:
             st.warning(str(e), icon=":material/hourglass_top:")

@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 
+from tokviz import ui_common
 from tokviz.pricing import estimate, load_models
 from tokviz import tab_context, tab_embeddings, tab_hallucination, tab_temperature
 from tokviz.render import chips_markdown, visible
@@ -9,6 +10,8 @@ from tokviz.tokenizer import ENCODINGS, tokenize
 st.set_page_config(page_title="Token & cost visualizer", page_icon=":material/token:", layout="wide")
 st.title("Token & cost visualizer")
 st.caption("Paste text, see how a model sees it, and what it would cost.")
+
+ui_common.backend_selector()
 
 SAMPLE = "Tokenization is unbelievably fun! Numbers like 1234567 and emoji 🙂 split in surprising ways."
 tab_tokens, tab_ctx, tab_temp, tab_hall, tab_emb = st.tabs(

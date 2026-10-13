@@ -18,6 +18,7 @@ class FakeClient:
         self._exc, self._vectors = exc, vectors
 
     def create(self, **kw):
+        self.kw = kw
         if self._exc:
             raise self._exc
 

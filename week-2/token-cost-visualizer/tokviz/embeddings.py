@@ -7,17 +7,25 @@ from .llm import LLMError, LLMTimeout, backend_models, make_client, suggest_alte
 
 
 def embed(backend: Backend, texts: list[str], model: str | None = None, timeout: float = 45.0,
-          client=None) -> np.ndarray:
-    """Return an (n, dim) array of L2-normalized vectors. Raises LLMTimeout / LLMError."""
+          client=None, kind: str = "passage") -> np.ndarray:
+    """Return an (n, dim) array of L2-normalized vectors. Raises LLMTimeout / LLMError.
+
+    kind: "passage" for the things you search over, "query" for the thing you search with.
+    NIM's embedding models need this hint (without it, similar sentences score no closer than
+    unrelated ones). LM Studio's nomic model gets no hint.
+    """
     model = model or backend.embed_model
     if not model:
         raise LLMError(f"No embedding model configured for the {backend.name} backend "
                        f"(set {'NIM_EMBED_MODEL' if backend.name == 'nim' else 'LMSTUDIO_EMBED_MODEL'}).")
     client = client or make_client(backend, timeout)
+    extra = {"extra_body": {"input_type": kind}} if backend.name == "nim" else {}
     try:
-        r = client.embeddings.create(model=model, input=texts)
+        r = client.embeddings.create(model=model, input=texts, **extra)
     except openai.APITimeoutError:
-        raise LLMTimeout(model, suggest_embedder(model, backend_models(backend)))
+        # NIM lists many embedders that 404, so only suggest alternatives from a local server's list
+        alt = suggest_embedder(model, backend_models(backend)) if backend.name == "local" else None
+        raise LLMTimeout(model, alt)
     except openai.APIConnectionError as e:
         raise LLMError(f"Cannot reach {backend.base_url} ({backend.name}). Is the server running? {e}")
     except openai.APIStatusError as e:

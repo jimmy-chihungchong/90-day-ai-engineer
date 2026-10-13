@@ -48,8 +48,8 @@ The first run downloads tokenizer files, so it needs internet once.
 ```powershell
 pytest
 ```
-54 tests. The ones that call LM Studio skip themselves automatically if the server isn't running, so
-`pytest` works with or without it. `tests/test_app.py` drives the whole UI headlessly with Streamlit's `AppTest`.
+63 tests. The ones that call LM Studio or NIM skip themselves automatically if that server isn't available
+(no LM Studio running, or no `NIM_API_KEY`), so `pytest` works anywhere. `tests/test_app.py` drives the whole UI headlessly with Streamlit's `AppTest`.
 
 ## Prices
 `data/pricing.json` holds USD per 1M tokens, fetched from the vendors' pricing pages on **2026-10-13**
@@ -62,12 +62,31 @@ See `.env.example`. Key settings: `BACKEND` (`local` or `nim`), `LMSTUDIO_BASE_U
 `LMSTUDIO_EMBED_MODEL`, `NIM_API_KEY`, `NIM_CHAT_MODEL`, `NIM_EMBED_MODEL`, `LLM_TIMEOUT_SECONDS`.
 Never commit `.env`.
 
+## Online models (NVIDIA NIM)
+Pick **Online (NVIDIA NIM)** in the sidebar (needs `NIM_API_KEY`, free at build.nvidia.com). NIM lists ~80
+models but most return 404, so the app offers a short list verified with a real key on **2026-10-13**:
+
+| Model | Use | Notes |
+|---|---|---|
+| `nvidia/ising-calibration-1.5-31b` (default) | Chat | About 1s, no hidden reasoning, returns logprobs. It is a qubit-calibration specialist, so it sometimes answers off-topic questions about itself. |
+| `nvidia/nemotron-3-super-120b-a12b` | Chat | Fast, but a reasoning model |
+| `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning` | Chat | Fast, reasoning, occasional 503 (capacity) |
+| `openai/gpt-oss-20b` | Chat | Slow here (10-18s), reasoning |
+| `nvidia/nemotron-3-embed-1b` (default) | Embeddings | 2048 numbers per text. Needs `input_type` (the app sends it). |
+
+Availability changes: `nvidia/nv-embedqa-e5-v5` (the old default) was retired on 2026-08-25 and now returns
+410. Override the list with `NIM_CHAT_MODELS` and the embedder with `NIM_EMBED_MODEL`. If your `.env` was
+copied from an older `.env.example`, update `NIM_CHAT_MODEL` and `NIM_EMBED_MODEL` to the values above.
+
+**Reasoning models on NIM** (gpt-oss, Nemotron) spend the tabs' small token budgets on hidden thinking, so
+they often return an empty answer, and their logprobs include the thinking tokens. The Hallucination tab
+detects an empty answer and says so. Use the first model in the list for the demos.
+
 ## Deploy (Streamlit Community Cloud) - not done yet
 LM Studio isn't reachable from the cloud, so deploy with NIM: push the repo and set `BACKEND = "nim"`,
-`NIM_API_KEY` and the NIM model names in the app's Secrets. **This has not been tested.** The NIM key hasn't
-been used yet, the NIM embedding model in `.env.example` is an unverified guess, and the app has no
-in-UI backend switch (it reads `BACKEND`). The Tokens & cost and Context window tabs will work without any
-model.
+`NIM_API_KEY` and (optionally) the model names in the app's Secrets. With `BACKEND=nim` the LM Studio option is
+hidden. NIM itself has been tested locally with a real key; **the Streamlit Cloud deployment itself has not**.
+Secrets should reach the app as environment variables, but that is unverified here.
 
 ## Notes
 - Token counts are exact only for OpenAI-family tokenizers (gpt-oss). Other models are approximated with
@@ -79,8 +98,8 @@ model.
   shown, renormalised among themselves.
 - Well-trained models refuse to answer unknown questions. The Hallucination tab's "pressure the model" box adds a
   system prompt telling it never to say "I don't know", which is what makes it invent details.
-- Embeddings use no task prefix. Nomic's docs recommend prefixes, but without them similarity scores spread
-  out more and are easier to read. The rankings are the same.
+- Local embeddings (nomic) use no task prefix. Nomic's docs recommend prefixes, but without them similarity
+  scores spread out more and are easier to read. The rankings are the same. NIM's embedder does need a hint.
 - Reasoning models (such as gpt-oss) spend tokens thinking, so very small `max_tokens` can give an empty answer.
 
 ## Manual test cases
@@ -100,3 +119,4 @@ Run these on the app. Cases marked **(L)** need the local LM Studio setup.
 | 10 | Embeddings (L) | Open Embeddings, click **Embed and map**, then search "a pet resting at home". | Four topic clusters appear, and the top matches are the cat and dog sentences. |
 | 11 | Timeout (L) | Set `LLM_TIMEOUT_SECONDS=1` in `.env`, restart, and click **Generate** with `openai/gpt-oss-20b` selected. | A warning appears with a "Switch to ..." button, and clicking it changes the model. |
 | 12 | Server down (L) | Stop the LM Studio server, wait 30 seconds (the model list is cached), and reload the Temperature tab. | A red "Cannot reach ... Is the server running?" message replaces the model picker, with no stack trace. |
+| 13 | NIM switch | Choose **Online (NVIDIA NIM)** in the sidebar, then run Generate, Ask and Embed and map. | The model list shows the verified NIM models, and all three tabs work (answers take a few seconds). |
