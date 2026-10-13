@@ -82,11 +82,47 @@ copied from an older `.env.example`, update `NIM_CHAT_MODEL` and `NIM_EMBED_MODE
 they often return an empty answer, and their logprobs include the thinking tokens. The Hallucination tab
 detects an empty answer and says so. Use the first model in the list for the demos.
 
-## Deploy (Streamlit Community Cloud) - not done yet
-LM Studio isn't reachable from the cloud, so deploy with NIM: push the repo and set `BACKEND = "nim"`,
-`NIM_API_KEY` and (optionally) the model names in the app's Secrets. With `BACKEND=nim` the LM Studio option is
-hidden. NIM itself has been tested locally with a real key; **the Streamlit Cloud deployment itself has not**.
-Secrets should reach the app as environment variables, but that is unverified here.
+## Deploy (Streamlit Community Cloud)
+LM Studio isn't reachable from the cloud, so the deployed app uses NIM. NIM has been tested locally with a real
+key. **The cloud deployment itself has not been done yet**, so these steps are untested; update them after the
+first deploy.
+
+1. **Push** the repo to GitHub (the app lives in the `week-2/token-cost-visualizer/` subfolder).
+2. Go to **share.streamlit.io**, sign in with GitHub, and click **Create app**.
+3. Fill in the form:
+
+   | Field | Value |
+   |---|---|
+   | Repository | `jimmy-chihungchong/90-day-ai-engineer` |
+   | Branch | `main` |
+   | Main file path | `week-2/token-cost-visualizer/app.py` |
+
+4. Open **Advanced settings**:
+   - **Python version:** developed on 3.14. If the build fails on `tiktoken`, choose 3.12 or 3.13.
+   - **Secrets:** paste the following with your own key (never commit it):
+     ```toml
+     BACKEND = "nim"
+     NIM_API_KEY = "your-key-here"
+     ```
+     Model names are optional because the defaults are the verified NIM models. With `BACKEND = "nim"` the LM
+     Studio option is hidden. Streamlit exposes top-level secrets as environment variables, which is how the app
+     reads them (unverified here).
+5. Click **Deploy** and wait a couple of minutes for the packages to install.
+6. **Smoke test** with manual test cases 1, 5 and 13 below. The first Tokenize call may take a few seconds while
+   the tokenizer file downloads.
+7. **Restrict viewers** under the app's **Share** settings if you don't want anyone with the URL to spend your NIM
+   free quota.
+
+Troubleshooting:
+
+| Symptom | Likely cause and fix |
+|---|---|
+| Build fails on `tiktoken` | Python version too new. Redeploy on 3.12 or 3.13. |
+| "Add NIM_API_KEY..." warning | Secrets didn't reach the app. Check the key name in **Manage app > Settings > Secrets**. |
+| 401 or 403 errors | Wrong or expired key. |
+| Slow responses or 503 errors | Free-tier capacity. Retry, or pick another model from the list. |
+| Empty Hallucination answer | A reasoning model is selected. Switch to the first model in the list. |
+| App is asleep | Free apps sleep when idle. Click **Wake up** and wait. |
 
 ## Notes
 - Token counts are exact only for OpenAI-family tokenizers (gpt-oss). Other models are approximated with
