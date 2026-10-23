@@ -1,0 +1,8 @@
+streamlit>=1.40
+openai>=1.50          # OpenAI-compatible client for both LM Studio and NVIDIA NIM
+pydantic>=2.7         # output schema + validation
+python-dotenv>=1.0
+pdfplumber>=0.11      # PDF text extraction (pure Python, no system deps)
+python-docx>=1.1      # Word (.docx) extraction
+pytest>=8.0
+reportlab>=4.0      # generates the synthetic test resumes
