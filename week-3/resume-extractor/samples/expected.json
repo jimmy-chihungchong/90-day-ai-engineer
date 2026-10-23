@@ -1,0 +1,134 @@
+{
+  "01_simple.docx": {
+    "name": "Alex Morgan",
+    "email": "alex.morgan@example.com",
+    "years": 6.4,
+    "skills": [
+      "Python",
+      "SQL",
+      "Docker",
+      "AWS"
+    ],
+    "jobs": 2,
+    "tol": 0.6,
+    "note": "baseline DOCX; 2021-01 gap"
+  },
+  "02_simple.pdf": {
+    "name": "Priya Natarajan",
+    "email": "priya.n@example.com",
+    "years": 7.3,
+    "skills": [
+      "Java",
+      "Spring Boot",
+      "Kafka",
+      "PostgreSQL"
+    ],
+    "jobs": 2,
+    "tol": 0.6,
+    "note": "baseline PDF; numeric dates"
+  },
+  "03_two_column.pdf": {
+    "name": "Daniel Okafor",
+    "email": "daniel.o@example.com",
+    "years": 7.8,
+    "skills": [
+      "Go",
+      "Kubernetes",
+      "Terraform",
+      "Prometheus"
+    ],
+    "jobs": 2,
+    "tol": 0.6,
+    "note": "two-column PDF, lines interleave"
+  },
+  "04_tables_header.docx": {
+    "name": "Sofia Rossi",
+    "email": "sofia.rossi@example.com",
+    "years": 6.3,
+    "skills": [
+      "React",
+      "TypeScript",
+      "Node.js",
+      "GraphQL"
+    ],
+    "jobs": 2,
+    "tol": 0.6,
+    "note": "name only in header; data in tables"
+  },
+  "05_scanned.pdf": {
+    "name": "Liam Walker",
+    "email": "liam.walker@example.com",
+    "years": null,
+    "skills": [],
+    "jobs": 0,
+    "tol": 0.6,
+    "note": "image-only PDF; correct behaviour is a clear 'scanned' error",
+    "expect_error": true
+  },
+  "06_spanish.docx": {
+    "name": "Carmen Ruiz Salazar",
+    "email": "carmen.ruiz@example.com",
+    "years": 8.8,
+    "skills": [
+      "Python",
+      "Spark",
+      "Power BI",
+      "SQL"
+    ],
+    "jobs": 2,
+    "tol": 0.6,
+    "note": "Spanish month names and 'actualidad' (= present)"
+  },
+  "07_long.pdf": {
+    "name": "Robert Chen",
+    "email": "robert.chen@example.com",
+    "years": 24.0,
+    "skills": [
+      "Rust",
+      "C++",
+      "Kubernetes"
+    ],
+    "jobs": 12,
+    "tol": 0.6,
+    "note": "~35k chars; text is truncated at 24k so oldest jobs + skills are lost"
+  },
+  "08_messy_dates.docx": {
+    "name": "Nadia Haddad",
+    "email": "nadia.haddad@example.com",
+    "years": 6.8,
+    "skills": [
+      "Figma",
+      "Sketch",
+      "User Research"
+    ],
+    "jobs": 4,
+    "tol": 0.5,
+    "note": "overlap, gap, 'Summer 2017' (~3 months, one-sided), year-only freelance"
+  },
+  "09_creative.pdf": {
+    "name": "Jordan Blake",
+    "email": "hello@jordanblake.example.com",
+    "years": 9.8,
+    "skills": [
+      "SEO",
+      "Google Analytics",
+      "HubSpot"
+    ],
+    "jobs": 2,
+    "tol": 1.2,
+    "note": "'21 - now style dates; skills written as a sentence; year-only ranges"
+  },
+  "10_student.docx": {
+    "name": "Mei Tanaka",
+    "email": "mei.tanaka@example.com",
+    "years": null,
+    "skills": [
+      "Python",
+      "pandas",
+      "scikit-learn"
+    ],
+    "jobs": 0,
+    "tol": 0.6,
+    "note": "no jobs: years must be null; projects are not jobs"
+  }
+}
