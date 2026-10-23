@@ -9,11 +9,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Candidate fallbacks for NIM. Availability is checked live in the UI/README, not assumed.
+# Fallbacks for NIM: all appear in the live catalog (GET /v1/models) as of 2026-10-23.
+# Whether each is callable on your key/tier is checked by scripts/check_nim.py.
 NIM_FALLBACKS = [
-    "meta/llama-3.3-70b-instruct",
-    "qwen/qwen3-next-80b-a3b-instruct",
-    "nvidia/llama-3.3-nemotron-super-49b-v1",
+    "nvidia/nemotron-nano-3-30b-a3b",
+    "nvidia/nemotron-3-super-120b-a12b",
+    "google/gemma-4-31b-it",
+    "nvidia/llama-3.1-nemotron-70b-instruct",
 ]
 
 
