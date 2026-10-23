@@ -15,6 +15,11 @@ def _none_to_list(v: Any) -> Any:
     return v
 
 
+def _to_str(v: Any) -> Any:
+    # e.g. start: 2019 (int) instead of "2019"
+    return str(v) if isinstance(v, (int, float)) and not isinstance(v, bool) else v
+
+
 class Experience(BaseModel):
     company: str | None = None
     title: str | None = None
@@ -22,12 +27,16 @@ class Experience(BaseModel):
     end: str | None = Field(None, description="YYYY-MM, YYYY, or 'Present'")
     description: str | None = None
 
+    _dates = field_validator("start", "end", mode="before")(_to_str)
+
 
 class Education(BaseModel):
     institution: str | None = None
     degree: str | None = None
     start: str | None = None
     end: str | None = None
+
+    _dates = field_validator("start", "end", mode="before")(_to_str)
 
 
 class ResumeData(BaseModel):
