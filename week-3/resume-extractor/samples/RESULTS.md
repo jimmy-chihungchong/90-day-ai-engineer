@@ -42,3 +42,14 @@ Model: `openai/gpt-oss-20b` via LM Studio, run with `python scripts/run_samples.
 - One run, one model, temperature 0. Not statistically meaningful; synthetic resumes are cleaner than real ones.
 - Not covered yet: real-world files from Canva/LinkedIn exports, password-protected PDFs, `.doc`, other models,
   NVIDIA NIM.
+
+## NVIDIA NIM runs (2026-10-23, free-tier key)
+
+| Model | Pass | Notes |
+|---|---|---|
+| `openai/gpt-oss-20b` | 8 / 10 | Same two failures (07, 08) as local LM Studio; 10-27s per resume (two suites were running in parallel) |
+| `nvidia/nemotron-3.5-lightning-30b-a3b` | 8 / 10 | Different failures: 03 and 07 returned an empty reply with `finish_reason=length`, i.e. the reasoning model spent the whole 4096-token budget thinking. 08 "passed" only because the model left the vague end date null, so the intern job was skipped with a warning. |
+
+Findings:
+- **`max_tokens=4096` is too small for some reasoning models** on harder or longer resumes. Not fixed yet.
+- **NIM catalog vs reality:** of 14 catalog models probed with a chat call, 5 worked (`gpt-oss-20b` plus the four fallbacks in `config.py`), 8 returned "not found", and 3 timed out (`google/gemma-4-31b-it`, `deepseek-ai/deepseek-v4.1-flash`, `z-ai/glm-5.3-flash`).

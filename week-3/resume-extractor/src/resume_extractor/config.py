@@ -9,13 +9,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Fallbacks for NIM: all appear in the live catalog (GET /v1/models) as of 2026-10-23.
-# Whether each is callable on your key/tier is checked by scripts/check_nim.py.
+# Fallbacks for NIM. Catalog presence is NOT enough (many listed models return 404 when called),
+# so these were each verified with a real chat call on a free-tier key on 2026-10-23
+# (scripts/check_nim.py). Re-check before relying on them.
 NIM_FALLBACKS = [
-    "nvidia/nemotron-nano-3-30b-a3b",
-    "nvidia/nemotron-3-super-120b-a12b",
-    "google/gemma-4-31b-it",
-    "nvidia/llama-3.1-nemotron-70b-instruct",
+    "minimaxai/minimax-m3.1-flash",
+    "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "nvidia/nemotron-3-ultra-550b-a55b",
+    "z-ai/glm-5.3",
 ]
 
 

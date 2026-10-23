@@ -50,10 +50,13 @@ Then open http://localhost:8501 and upload a file (try `samples/resumes/`).
    python scripts/check_nim.py
    ```
 
-   `openai/gpt-oss-20b` is the default. Fallbacks in `config.py` (`nvidia/nemotron-nano-3-30b-a3b`,
-   `nvidia/nemotron-3-super-120b-a12b`, `google/gemma-4-31b-it`, `nvidia/llama-3.1-nemotron-70b-instruct`) were
-   confirmed to exist in the NIM catalog on 2026-10-23, **but not yet confirmed callable on a free key**; that is
-   what `check_nim.py` is for. Catalogs change, so re-check before relying on any of them.
+   `openai/gpt-oss-20b` is the default. **Being listed in the NIM catalog does not mean a model is callable**:
+   on 2026-10-23, 8 of 14 catalog models I tried returned "not found" and 3 timed out. These answered a test
+   request on a free key and are the UI's fallback suggestions (`config.py`):
+   `minimaxai/minimax-m3.1-flash`, `nvidia/nemotron-3.5-lightning-30b-a3b`,
+   `nvidia/nemotron-3-ultra-550b-a55b`, `z-ai/glm-5.3`. Availability changes, so re-run `check_nim.py`.
+
+   Full-suite results on NIM are in [`samples/RESULTS.md`](samples/RESULTS.md).
 
 ### Timeouts
 
