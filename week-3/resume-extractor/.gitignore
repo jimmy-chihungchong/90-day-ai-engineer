@@ -5,3 +5,4 @@ __pycache__/
 outputs/
 *.pyc
 .pytest_cache/
+samples/resumes
