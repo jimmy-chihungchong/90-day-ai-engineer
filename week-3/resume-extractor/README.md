@@ -1,4 +1,4 @@
-# Resume to JSON (prototype)
+# Resume to JSON Extractor
 
 Upload a messy **PDF** or **Word (.docx)** resume and get clean, structured JSON: name, contact details,
 skills, work history, education and total years of experience. The app shows the raw extracted text next to

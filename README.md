@@ -1,6 +1,6 @@
 # 90 Days to Become an AI Engineer
 
-This project is inspired by [90 Days to Become an AI Engineer: The Oct → Dec Roadmap (12 Weeks, 12 Projects)](https://ai.plainenglish.io/90-days-to-become-an-ai-engineer-the-oct-dec-roadmap-12-weeks-12-projects-7aabbca445d6?sk=7d2080cf1e0eed8032940e56ebbb1337).
+This project is inspired by [90 Days to Become an AI Engineer: The Oct → Dec Roadmap (12 Weeks, 12 Projects)](https://ai.plainenglish.io/90-days-to-become-an-ai-engineer-the-oct-dec-roadmap-12-weeks-12-projects-7aabbca445d6).
 
 ## Week 1 · Oct 1–7 · Python for AI + LLM APIs
 
@@ -25,3 +25,15 @@ A Streamlit app for learning how LLMs work without the math. Paste text to see h
 
 - [GitHub](https://github.com/jimmy-chihungchong/90-day-ai-engineer/tree/main/week-2/token-cost-visualizer)
 - [Streamlit deployment](https://90-day-ai-engineer-dnzqfoubuzc874mqvnvuoq.streamlit.app/)
+
+## Week 3 · Oct 15–21 · Prompting + structured output
+
+- **Learn:** System prompts, few-shot examples, asking the model to reason step by step, and the big one: getting reliable JSON back using schemas.
+- **Ship:** A resume-to-JSON extractor. Upload a messy resume, get clean structured data (name, skills, years of experience). Test it on 10 different resumes and note where it breaks.
+
+### Project 3: Resume to JSON Extractor
+
+Upload a messy PDF or Word (.docx) resume and get clean, structured JSON: name, contact details, skills, work history, education and total years of experience. The app shows the raw extracted text next to the JSON so you can see how scattered data becomes organized data.
+
+- [GitHub](https://github.com/jimmy-chihungchong/90-day-ai-engineer/tree/main/week-3/resume-extractor)
+- [Streamlit deployment](https://90-day-ai-engineer-5vgyfhpdg3fx5wains4orf.streamlit.app/)
