@@ -119,7 +119,7 @@ the two failures (long resume truncation, "Summer 2017" dates) and a too-small t
 
 | Problem | Effect |
 |---|---|
-| LM Studio's context window (8192 tokens for gpt-oss-20b by default) | Resumes over roughly 20-25k characters fail with a clear "does not fit" error. Raise Context Length in LM Studio, or set `MAX_RESUME_CHARS=20000` so the head and tail are kept instead |
+| LM Studio's context window (8192 tokens for gpt-oss-20b by default) | Resumes over roughly 20-25k characters fail with a clear "does not fit" error. `.env.example` sets `MAX_RESUME_CHARS=20000` so the head and tail are kept instead; raise it for NIM, or raise Context Length in LM Studio |
 | Resume text > `MAX_RESUME_CHARS` (default 60,000) | The middle is omitted (head 70% / tail 30% kept) and a warning is shown |
 | Year-only ranges ("2014 - 2016") | Counted as whole calendar years, so experience can be overstated |
 | Scanned / image-only PDFs | Rejected with a clear message; no OCR |
