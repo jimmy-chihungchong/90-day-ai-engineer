@@ -8,6 +8,7 @@ from .schema import ResumeData
 
 _MONTHS = {m: i for i, m in enumerate(
     ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], 1)}
+_SEASONS = {"spring": (3, 5), "summer": (6, 8), "fall": (9, 11), "autumn": (9, 11), "winter": (1, 3)}
 _PRESENT = {"present", "current", "now", "ongoing", "today", "to date", "till date"}
 
 
@@ -23,7 +24,9 @@ def parse_date(s: str | None, *, is_end: bool, today: date) -> tuple[int, int] |
         return None
     year = int(year_m.group())
     month = None
-    if m := re.search(r"\b([a-z]{3})[a-z]*\b", s):
+    if m := re.search(r"\b(spring|summer|fall|autumn|winter)\b", s):
+        month = _SEASONS[m.group(1)][1 if is_end else 0]  # "Summer 2017" -> Jun..Aug
+    elif m := re.search(r"\b([a-z]{3})[a-z]*\b", s):
         month = _MONTHS.get(m.group(1))
     if month is None and (m := re.fullmatch(r"(\d{4})-(\d{1,2})|(\d{1,2})[/-](\d{4})", s)):
         month = int(m.group(2) or m.group(3))

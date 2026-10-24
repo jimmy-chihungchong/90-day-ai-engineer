@@ -27,6 +27,8 @@ class Settings:
     model: str
     api_key: str
     timeout: float
+    max_tokens: int = 8192  # reasoning models spend many tokens thinking before answering
+    max_resume_chars: int = 60_000  # ~15k tokens of resume text sent to the model
 
 
 def get_settings(overrides: Mapping[str, str] | None = None) -> Settings:
@@ -49,4 +51,5 @@ def get_settings(overrides: Mapping[str, str] | None = None) -> Settings:
         api_key = env("LMSTUDIO_API_KEY", "lm-studio")
     else:
         raise ValueError(f"Unknown LLM_BACKEND '{backend}'. Use 'lmstudio' or 'nim'.")
-    return Settings(backend, base_url, model, api_key, float(env("LLM_TIMEOUT_SECONDS", "90")))
+    return Settings(backend, base_url, model, api_key, float(env("LLM_TIMEOUT_SECONDS", "90")),
+                    int(env("LLM_MAX_TOKENS", "8192")), int(env("MAX_RESUME_CHARS", "60000")))

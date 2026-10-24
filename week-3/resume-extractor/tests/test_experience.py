@@ -23,6 +23,10 @@ def years(*jobs):
     ("Present", True, (2026, 6)),
     ("current", True, (2026, 6)),
     ("2030", True, (2026, 6)),      # future end clamped
+    ("Summer 2017", False, (2017, 6)),
+    ("Summer 2017", True, (2017, 8)),
+    ("Fall 2020", False, (2020, 9)),
+    ("Waterfall 2020", False, (2020, 1)),   # "fall" inside a word is not a season
     ("sometime", True, None),
     (None, False, None),
 ])
@@ -60,3 +64,7 @@ def test_schema_coerces_llm_sloppiness():
     d = ResumeData.model_validate({"skills": ["Python", "python", " SQL ", ""], "links": None,
                                    "education": None, "extra_field": 1})
     assert d.skills == ["Python", "SQL"] and d.links == [] and d.education == []
+
+
+def test_season_job_counts_about_three_months():
+    assert years(("Summer 2017", "Summer 2017")).total_years_experience == 0.2  # 3 months

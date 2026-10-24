@@ -8,7 +8,7 @@ import socket
 import pytest
 
 from resume_extractor.config import Settings, get_settings
-from resume_extractor.llm import LLMClient, LLMTimeout, LLMUnavailable, extract_json
+from resume_extractor.llm import LLMClient, LLMError, LLMTimeout, LLMUnavailable, extract_json
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -24,16 +24,26 @@ class Handler(BaseHTTPRequestHandler):
         self._send({"data": [{"id": "slow-model"}, {"id": "fast-model"}, {"id": "nomic-embed-x"}]})
 
     def do_POST(self):
-        self.rfile.read(int(self.headers["Content-Length"]))
-        if "slow" in self.path or True:
-            time.sleep(self.server.delay)
+        raw = self.rfile.read(int(self.headers["Content-Length"]))
+        time.sleep(self.server.delay)
+        body = json.loads(raw)
+        self.server.seen_max_tokens.append(body["max_tokens"])
+        if self.server.mode == "length_once" and len(self.server.seen_max_tokens) == 1:
+            return self._send({"choices": [{"message": {"content": ""}, "finish_reason": "length"}]})
+        if self.server.mode == "always_length":
+            return self._send({"choices": [{"message": {"content": ""}, "finish_reason": "length"}]})
+        if self.server.mode == "context":
+            msg = json.dumps({"error": {"message": "Trying to keep 9000 tokens but context length is 8192"}}).encode()
+            self.send_response(400); self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(msg))); self.end_headers()
+            return self.wfile.write(msg)
         self._send({"choices": [{"message": {"content": '{"ok": true}'}, "finish_reason": "stop"}]})
 
 
 @pytest.fixture
 def server():
     srv = HTTPServer(("127.0.0.1", 0), Handler)
-    srv.delay = 0
+    srv.delay, srv.mode, srv.seen_max_tokens = 0, "ok", []
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     yield srv
     srv.shutdown()
@@ -82,3 +92,27 @@ def test_settings(monkeypatch):
 
 def _free_port():
     s = socket.socket(); s.bind(("127.0.0.1", 0)); p = s.getsockname()[1]; s.close(); return p
+
+
+def test_default_budget_is_8192(server):
+    LLMClient(settings_for(server)).complete("s", "u")
+    assert server.seen_max_tokens == [8192]
+
+
+def test_retries_once_with_double_budget_when_reasoning_exhausts_tokens(server):
+    server.mode = "length_once"
+    assert LLMClient(settings_for(server)).complete("s", "u") == '{"ok": true}'
+    assert server.seen_max_tokens == [8192, 16384]
+
+
+def test_gives_clear_error_when_still_empty(server):
+    server.mode = "always_length"
+    with pytest.raises(LLMError, match="empty answer"):
+        LLMClient(settings_for(server)).complete("s", "u")
+    assert len(server.seen_max_tokens) == 2  # one retry only
+
+
+def test_context_overflow_message(server):
+    server.mode = "context"
+    with pytest.raises(LLMError, match="context window"):
+        LLMClient(settings_for(server)).complete("s", "u")

@@ -106,24 +106,27 @@ counted). Jobs with unusable dates are skipped and listed in `warnings`.
 ## Tests
 
 ```powershell
-pytest                                   # 42 unit tests, no LLM needed
+pytest                                   # 52 unit tests, no LLM needed
 python samples/make_samples.py           # regenerate the 10 synthetic resumes + answer key
 python scripts/run_samples.py            # run them through the real LLM and score the output
 ```
 
-Last result on `openai/gpt-oss-20b` (LM Studio): **8 / 10 pass**. Details in
-[`samples/RESULTS.md`](samples/RESULTS.md).
+Last results (details in [`samples/RESULTS.md`](samples/RESULTS.md)): **10 / 10** on `openai/gpt-oss-20b` via both
+LM Studio and NIM, and 10 / 10 on NIM `nvidia/nemotron-3.5-lightning-30b-a3b` (slow, see the file). The first run scored 8 / 10;
+the two failures (long resume truncation, "Summer 2017" dates) and a too-small token budget were then fixed.
 
-### Where it breaks (known limitations)
+### Where it still breaks (known limitations)
 
 | Problem | Effect |
 |---|---|
-| Resume text > 24,000 chars is truncated | Oldest jobs and trailing sections (e.g. Skills) are lost; UI warns but data is incomplete (test 07) |
-| Vague dates ("Summer 2017") and year-only ranges | Counted as whole calendar years, so experience can be overstated (test 08) |
+| LM Studio's context window (8192 tokens for gpt-oss-20b by default) | Resumes over roughly 20-25k characters fail with a clear "does not fit" error. Raise Context Length in LM Studio, or set `MAX_RESUME_CHARS=20000` so the head and tail are kept instead |
+| Resume text > `MAX_RESUME_CHARS` (default 60,000) | The middle is omitted (head 70% / tail 30% kept) and a warning is shown |
+| Year-only ranges ("2014 - 2016") | Counted as whole calendar years, so experience can be overstated |
 | Scanned / image-only PDFs | Rejected with a clear message; no OCR |
 | Legacy `.doc`, password-protected files | Rejected |
-| Two-column PDFs | Extracted text is interleaved; worked on gpt-oss-20b, likely worse on small models (test 03) |
-| Non-English dates | Worked only because the LLM normalized them to `YYYY-MM`; the Python parser only understands English months |
+| Two-column PDFs | Extracted text is interleaved; worked on gpt-oss-20b, likely worse on small models |
+| Non-English dates | Worked only because the LLM normalized them to `YYYY-MM`; the Python parser knows English months and seasons only |
+| Reasoning models on NIM (e.g. Nemotron) | Correct but slow (up to ~2 minutes) because the token budget is doubled when they run out |
 
 ### Manual checks worth doing in the UI
 
@@ -138,7 +141,8 @@ Last result on `openai/gpt-oss-20b` (LM Studio): **8 / 10 pass**. Details in
 - **LM Studio rejects `response_format: {"type": "json_object"}`** (only `json_schema` or `text`). The app uses
   plain prompting, tolerant JSON extraction and one validation retry, which works on both backends.
 - The `openai` 3.x package depends on `httpx2`, not `httpx`; use `openai.Timeout` rather than importing httpx.
-- Reasoning models spend tokens thinking; `max_tokens` is set to 4096 and an empty reply raises a clear error.
+- Reasoning models spend tokens thinking: `LLM_MAX_TOKENS` defaults to 8192, an empty reply is retried once with double, and a second empty reply raises a clear error.
+- LM Studio loads models with a small context window by default; see `MAX_RESUME_CHARS` in `.env.example`.
 
 ## Project layout
 
@@ -153,6 +157,6 @@ tests/                    pytest unit tests
 
 ## Ideas for next steps
 
-Raise or remove the truncation cap, chunk very long resumes, treat season dates as ~3 months, OCR fallback
+Chunk very long resumes instead of dropping the middle, midpoint convention for year-only dates, OCR fallback
 for scanned PDFs, skill normalization with the local `text-embedding-nomic-embed-text-v1.5` model
 ("JS" → "JavaScript"), constrained decoding via `json_schema` on LM Studio.

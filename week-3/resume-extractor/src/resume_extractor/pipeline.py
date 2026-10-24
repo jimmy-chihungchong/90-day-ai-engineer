@@ -31,7 +31,7 @@ def run_pipeline(filename: str, content: bytes, settings: Settings, client=None)
         parsed = parse_resume(filename, content)
         res.text = parsed.text
         client = client or LLMClient(settings)
-        res.data = extract_resume(parsed.text, client)
+        res.data = extract_resume(parsed.text, client, max_chars=settings.max_resume_chars)
         res.data.warnings = parsed.warnings + res.data.warnings
     except ParseError as e:
         res.error = str(e)

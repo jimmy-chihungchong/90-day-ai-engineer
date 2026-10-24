@@ -48,8 +48,17 @@ class LLMClient:
             pool = self.list_models()
         return [m for m in pool if m != current][:3]
 
+    def _create(self, model, messages, max_tokens):
+        return self._client.chat.completions.create(
+            model=model, messages=messages, temperature=0, max_tokens=max_tokens)
+
+    @staticmethod
+    def _ran_out_of_tokens(resp) -> bool:
+        choice = resp.choices[0]
+        return choice.finish_reason == "length" and not (choice.message.content or "").strip()
+
     def complete(self, system: str, user: str, model: str | None = None,
-                 max_tokens: int = 4096) -> str:
+                 max_tokens: int | None = None) -> str:
         """Return the assistant's text. Raises LLMTimeout / LLMUnavailable / LLMError."""
         model = model or self.settings.model
         if self.settings.backend == "lmstudio":
@@ -59,13 +68,12 @@ class LLMClient:
         else:
             messages = [{"role": "system", "content": system},
                         {"role": "user", "content": user}]
+        budget = max_tokens or self.settings.max_tokens
         try:
-            resp = self._client.chat.completions.create(
-                model=model,
-                messages=messages,
-                temperature=0,
-                max_tokens=max_tokens,  # reasoning models spend tokens thinking first
-            )
+            resp = self._create(model, messages, budget)
+            if self._ran_out_of_tokens(resp):
+                # Reasoning models can burn the whole budget thinking; retry once with double.
+                resp = self._create(model, messages, budget * 2)
         except openai.APITimeoutError as e:
             raise LLMTimeout(
                 f"'{model}' did not answer within {self.settings.timeout:.0f}s.",
@@ -80,6 +88,13 @@ class LLMClient:
         except openai.NotFoundError as e:
             raise LLMError(f"Model '{model}' was not found on this server.",
                            self.suggest_alternatives(model)) from e
+        except openai.BadRequestError as e:
+            if "context" in str(e).lower():
+                raise LLMError(
+                    f"The resume does not fit in the model's context window ({e}). Use a shorter "
+                    "resume, lower MAX_RESUME_CHARS, or load the model with a larger context "
+                    "length (LM Studio: model settings > Context Length).") from e
+            raise LLMError(f"LLM request failed: {e}") from e
         except openai.OpenAIError as e:
             raise LLMError(f"LLM request failed: {e}") from e
 

@@ -10,7 +10,8 @@ from .experience import compute_years
 from .llm import extract_json
 from .schema import ResumeData
 
-MAX_CHARS = 24_000  # ~6k tokens; longer resumes are truncated with a warning
+MAX_CHARS = 60_000  # default; Settings.max_resume_chars overrides it
+HEAD_SHARE = 0.7  # when too long keep the start (jobs) and the end (often skills)
 
 SYSTEM_PROMPT = """You extract structured data from resume text. Reply with ONE JSON object and nothing else.
 
@@ -32,6 +33,7 @@ Schema (use null for unknown scalars, [] for unknown lists):
 Rules:
 - Use only information present in the text. Never invent or guess values.
 - Dates: "YYYY-MM" when the month is known, otherwise "YYYY". Use "Present" for a current role.
+  If only a season is given (e.g. "Summer 2017"), copy it verbatim into both start and end.
 - "skills": one flat list of individual skills/tools/languages, gathered from every section.
 - "experience": paid roles, internships and freelance work only, most recent first.
   Put a 1-2 sentence summary of the role in "description".
@@ -43,12 +45,16 @@ class _LLM(Protocol):
     def complete(self, system: str, user: str) -> str: ...
 
 
-def extract_resume(text: str, llm: _LLM, today: date | None = None) -> ResumeData:
+def extract_resume(text: str, llm: _LLM, today: date | None = None,
+                   max_chars: int = MAX_CHARS) -> ResumeData:
     """Run the full text -> ResumeData pipeline. Raises LLMError subclasses from the client."""
     warnings: list[str] = []
-    if len(text) > MAX_CHARS:
-        text = text[:MAX_CHARS]
-        warnings.append(f"Resume text was truncated to {MAX_CHARS} characters.")
+    if len(text) > max_chars:
+        omitted = len(text) - max_chars
+        head = int(max_chars * HEAD_SHARE)
+        text = f"{text[:head]}\n[... middle of resume omitted ...]\n{text[-(max_chars - head):]}"
+        warnings.append(f"Resume is {omitted:,} characters over the {max_chars:,} limit: the middle "
+                        "was omitted, so some jobs may be missing.")
 
     user = f"Resume text:\n\"\"\"\n{text}\n\"\"\""
     reply = llm.complete(SYSTEM_PROMPT, user)

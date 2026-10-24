@@ -47,8 +47,18 @@ def test_gives_up_after_one_retry():
     assert ei.value.raw_reply == "nope"
 
 
-def test_truncation_warning():
+def test_long_text_keeps_head_and_tail():
+    text = "HEAD-JOBS " + "x" * 5000 + " TAIL-SKILLS"
     llm = FakeLLM(GOOD)
-    d = extract_resume("a" * (MAX_CHARS + 10), llm)
-    assert any("truncated" in w for w in d.warnings)
-    assert len(llm.calls[0]) < MAX_CHARS + 100
+    d = extract_resume(text, llm, max_chars=1000)
+    sent = llm.calls[0]
+    assert "HEAD-JOBS" in sent and "TAIL-SKILLS" in sent and "omitted" in sent
+    assert len(sent) < 1200
+    assert any("middle was omitted" in w for w in d.warnings)
+
+
+def test_default_cap_is_generous():
+    assert MAX_CHARS >= 60_000
+    llm = FakeLLM(GOOD)
+    extract_resume("a" * 40_000, llm)  # well under the cap: untouched, no warning
+    assert "omitted" not in llm.calls[0]
