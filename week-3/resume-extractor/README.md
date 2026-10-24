@@ -33,6 +33,9 @@ copy .env.example .env
 streamlit run app.py
 ```
 
+Or just double-click **`RUN.BAT`**: it creates the venv and installs dependencies on the first run, creates `.env` from
+`.env.example` if missing, starts the app and opens http://localhost:8501.
+
 Then open http://localhost:8501 and upload a file (try `samples/resumes/`).
 
 ### Local backend: LM Studio
