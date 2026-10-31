@@ -37,3 +37,19 @@ Upload a messy PDF or Word (.docx) resume and get clean, structured JSON: name, 
 
 - [GitHub](https://github.com/jimmy-chihungchong/90-day-ai-engineer/tree/main/week-3/resume-extractor)
 - [Streamlit deployment](https://90-day-ai-engineer-5vgyfhpdg3fx5wains4orf.streamlit.app/)
+
+## Week 4 · Oct 22–31 · Embeddings & semantic search
+
+- **Learn:** How text becomes vectors, cosine similarity, and why "meaning search" beats keyword search.
+- **Ship:** Semantic search over your own notes, bookmarks or journal. Ask "what did I write about burnout?" and get the right entries even if you never used that word.
+
+🎃 _**Oct 31 checkpoint:** 4 public repos. You can explain tokens, embeddings and structured output to a friend without notes. If not, repeat the weak week before moving on. The plan bends; it doesn't break._
+
+### Project 4: Semantic Notes
+
+Search your own notes, bookmarks or journal by meaning. Ask "what did I write about burnout?" and get entries about exhaustion, overwork or running on fumes, even if the word never appears.
+
+Prototype scope: no auth, no database, no PDF support. Built to show the full workflow end to end.
+
+- [GitHub](https://github.com/jimmy-chihungchong/90-day-ai-engineer/tree/main/week-4/semantic-notes)
+- [Streamlit deployment](https://90-day-ai-engineer-mkeqpwfyth7qkn8u6gwmhq.streamlit.app/)
