@@ -24,7 +24,7 @@ def get_settings(provider: str | None = None) -> Settings:
     provider = (provider or os.getenv("PROVIDER", "lmstudio")).lower()
     p = "NVIDIA" if provider == "nvidia" else "LMSTUDIO"
     defaults = {
-        "NVIDIA": ("https://integrate.api.nvidia.com/v1", "openai/gpt-oss-20b", "nvidia/nv-embedqa-e5-v5"),
+        "NVIDIA": ("https://integrate.api.nvidia.com/v1", "openai/gpt-oss-20b", "nvidia/nemotron-3.5-embed-1b"),
         "LMSTUDIO": ("http://localhost:1234/v1", "openai/gpt-oss-20b", "text-embedding-nomic-embed-text-v1.5"),
     }[p]
     return Settings(

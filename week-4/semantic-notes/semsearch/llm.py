@@ -10,16 +10,26 @@ SYSTEM = (
 CONTEXT_BUDGET = 9000  # chars; keeps small local context windows (e.g. 8k tokens) safe
 
 
+NVIDIA_FALLBACKS = [
+    "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "nvidia/nemotron-3.5-bolt-e4b",
+    "mistralai/mistral-large-4-1t-a52b",
+]
+
+
 class LLMTimeout(Exception):
     pass
 
 
 def suggest_alternatives(s: Settings) -> list[str]:
     """Other chat models on the same endpoint (embedding models excluded)."""
-    try:
-        ids = [m.id for m in s.client().models.list().data]
-    except Exception:
-        ids = ["meta/llama-3.3-70b-instruct", "qwen/qwen3-next-80b-a3b-instruct"] if s.provider == "nvidia" else []
+    if s.provider == "nvidia":  # NIM's /models lists many retired models, so use ones verified to respond
+        ids = NVIDIA_FALLBACKS
+    else:
+        try:
+            ids = [m.id for m in s.client().models.list().data]
+        except Exception:
+            ids = []
     return [i for i in ids if i != s.chat_model and "embed" not in i.lower()][:4]
 
 
@@ -32,7 +42,7 @@ def answer(s: Settings, question: str, hits: list[tuple[float, Chunk]], model: s
         parts.append(block)
         used += len(block)
     try:
-        r = s.client().chat.completions.create(
+        r = s.client().with_options(max_retries=0).chat.completions.create(
             model=model or s.chat_model,
             messages=[
                 {"role": "system", "content": SYSTEM},

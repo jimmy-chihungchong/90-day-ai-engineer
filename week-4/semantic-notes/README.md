@@ -59,7 +59,7 @@ python cli.py ../log "which jobs were a good fit for my RAG experience?" --answe
 ## Assumptions
 
 - Notes are UTF-8 text. JSON is a list of records, or an object containing lists of records.
-- NVIDIA NIM hosts `openai/gpt-oss-20b` for chat. For embeddings it uses `nvidia/nv-embedqa-e5-v5` (change via `NVIDIA_EMBED_MODEL`).
+- NVIDIA NIM hosts `openai/gpt-oss-20b` for chat. For embeddings it uses `nvidia/nemotron-3.5-embed-1b` (change via `NVIDIA_EMBED_MODEL`).
 - Vectors from different embedding models are not comparable; the cache is per embedding model.
 - The LLM can embellish. Always check the cited excerpts under the answer.
 
