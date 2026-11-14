@@ -43,8 +43,6 @@ Upload a messy PDF or Word (.docx) resume and get clean, structured JSON: name, 
 - **Learn:** How text becomes vectors, cosine similarity, and why "meaning search" beats keyword search.
 - **Ship:** Semantic search over your own notes, bookmarks or journal. Ask "what did I write about burnout?" and get the right entries even if you never used that word.
 
-🎃 _**Oct 31 checkpoint:** 4 public repos. You can explain tokens, embeddings and structured output to a friend without notes. If not, repeat the weak week before moving on. The plan bends; it doesn't break._
-
 ### Project 4: Semantic Notes
 
 Search your own notes, bookmarks or journal by meaning. Ask "what did I write about burnout?" and get entries about exhaustion, overwork or running on fumes, even if the word never appears.
@@ -53,3 +51,18 @@ Prototype scope: no auth, no database, no PDF support. Built to show the full wo
 
 - [GitHub](https://github.com/jimmy-chihungchong/90-day-ai-engineer/tree/main/week-4/semantic-notes)
 - [Streamlit deployment](https://90-day-ai-engineer-mkeqpwfyth7qkn8u6gwmhq.streamlit.app/)
+
+🎃 _**Oct 31 checkpoint:** 4 public repos. You can explain tokens, embeddings and structured output to a friend without notes. If not, repeat the weak week before moving on. The plan bends; it doesn't break._
+
+## ACT II · NOVEMBER · Build things that think
+
+## Week 5 · Nov 1–7 · RAG from scratch
+
+- **Learn:** Retrieval-Augmented Generation: chunking documents, storing embeddings in a vector database, retrieving relevant chunks and feeding them to the model. Learn reranking too.
+- **Ship:** Chat with your PDF, with no framework. Build the pipeline yourself first. Use frameworks later, once you know what they're hiding from you.
+
+### Project 5: Chat with your PDF
+
+A local, self-correcting RAG chatbot. Upload PDFs and/or add web page URLs, then ask questions about them. Everything runs on your machine: the chat and embedding models are served by LM Studio, and the UI is a Streamlit app.
+
+- [GitHub](https://github.com/jimmy-chihungchong/90-day-ai-engineer/tree/main/week-5/chat-with-your-pdf)
